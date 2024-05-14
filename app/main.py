@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 
+from app.contrib.pw import get_context
 from app.interactors.waze import LinkType as WazeLinkType, google_maps_link__convert_to__waze_link
 from app.interactors.youtube import youtube__get__channel_content
 
@@ -12,15 +13,17 @@ def read_root():
 
 
 @app.get("/shortcuts/waze/link/from/google/{link_type}")
-async def waze_from_google_link(link_type: WazeLinkType, url: str = None):
+async def waze_from_google_link(link_type: WazeLinkType, url: str = None, context=Depends(get_context)):
     return await google_maps_link__convert_to__waze_link(
         url=url,
-        link_type=link_type
+        link_type=link_type,
+        context=context
     )
 
 
 @app.get("/shortcuts/youtube/last_video")
-async def get_latest_video(channel: str = None):
+async def get_latest_video(channel: str = None, context=Depends(get_context)):
     return await youtube__get__channel_content(
-        channel_name=channel
+        channel_name=channel,
+        context=context
     )

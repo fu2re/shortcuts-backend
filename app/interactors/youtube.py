@@ -1,14 +1,11 @@
-from playwright.async_api import async_playwright, expect
+from playwright.async_api import async_playwright, expect, BrowserContext
 
 
 class VideoNotFound(Exception):
     pass
 
 
-async def youtube__get__page_content(*, url):
-    p = await async_playwright().start()
-    browser = await p.chromium.launch(headless=True)
-    context = await browser.new_context(locale="en")
+async def youtube__get__page_content(*, url: str, context: BrowserContext):
     page = await context.new_page()
     await page.goto(url)
     await page.wait_for_load_state()
@@ -21,12 +18,11 @@ async def youtube__get__page_content(*, url):
         pass
 
     url = await youtube__get__first_video(page=page)
-    await browser.close()
     return url
 
 
-async def youtube__get__channel_content(*, channel_name):
-    return await youtube__get__page_content(url=f"https://www.youtube.com/@{channel_name}/videos")
+async def youtube__get__channel_content(*, channel_name: str, context: BrowserContext):
+    return await youtube__get__page_content(url=f"https://www.youtube.com/@{channel_name}/videos", context=context)
 
 
 async def youtube__get__first_video(*, page):

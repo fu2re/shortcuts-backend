@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from playwright.async_api import async_playwright, expect
+from playwright.async_api import expect, BrowserContext
 
 from app.logger import logger
 
@@ -14,10 +14,7 @@ class LinkType(Enum):
     app = "app"
 
 
-async def google_maps_link__get__coordinates(*, url):
-    p = await async_playwright().start()
-    browser = await p.chromium.launch(headless=True)
-    context = await browser.new_context(locale="en")
+async def google_maps_link__get__coordinates(*, url: str, context: BrowserContext):
     page = await context.new_page()
     await page.goto(url)
     await page.wait_for_load_state()
@@ -34,11 +31,10 @@ async def google_maps_link__get__coordinates(*, url):
     await page.wait_for_url(re.compile(r".+/@.+"))
     coords = google_maps_link__parse__coordinates(full_url=page.url)
 
-    await browser.close()
     return coords
 
 
-def google_maps_link__parse__coordinates(*, full_url):
+def google_maps_link__parse__coordinates(*, full_url: str):
     logger.info('Parse: %s', full_url)
 
     try:
@@ -55,9 +51,9 @@ def google_maps_link__parse__coordinates(*, full_url):
     return lat, lon
 
 
-async def google_maps_link__convert_to__waze_link(*, url: str, link_type: LinkType = LinkType.web):
+async def google_maps_link__convert_to__waze_link(*, url: str, link_type: LinkType = LinkType.web, context: BrowserContext):
     try:
-        lat, lon = await google_maps_link__get__coordinates(url=url)
+        lat, lon = await google_maps_link__get__coordinates(url=url, context=context)
     except InvalidCoords:
         logger.error("Unable to get coordinates")
         return ""
