@@ -12,15 +12,15 @@ def read_root():
 
 
 @app.get("/shortcuts/waze/link/from/google/{link_type}")
-def read_item(link_type: WazeLinkType, url: str = None):
-    return google_maps_link__convert_to__waze_link(
+async def waze_from_google_link(link_type: WazeLinkType, url: str = None):
+    return await google_maps_link__convert_to__waze_link(
         url=url,
         link_type=link_type
     )
 
 
 @app.get("/shortcuts/youtube/last_video")
-def read_item(channel: str = None):
-    return youtube__get__channel_content(
+async def get_latest_video(channel: str = None):
+    return await youtube__get__channel_content(
         channel_name=channel
     )
